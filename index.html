@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MON AIRHORN 48 NOT - FIX TOTAL</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#0d0d0d;color:#fff;background-image:var(--bg-img,none);background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,var(--bg-dark,.62));z-index:-1;pointer-events:none}
+header{padding:18px;text-align:center;background:#171717;border-bottom:1px solid #333}
+h1{margin:0;font-size:22px}
+small{color:#bbb}
+.container{padding:16px;max-width:1150px;margin:auto}
+.panel{background:#171717;border:1px solid #333;border-radius:14px;padding:14px;margin-bottom:16px}
+button{border:none;border-radius:10px;padding:12px 16px;margin:5px;font-weight:bold;cursor:pointer;background:#f6b21a;color:#111}
+button.stop{background:#e53935;color:white}
+button.blue{background:#1e88e5;color:white}
+button.gray{background:#333;color:white}
+select,input{padding:10px;margin:8px 0;width:100%;border-radius:8px;border:1px solid #444}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.card{background:#242424;border:1px solid #444;border-radius:12px;padding:10px;text-align:center;min-height:105px}
+.card.active{background:#f6b21a;color:#111;box-shadow:0 0 18px #f6b21a}
+.note{font-size:20px;font-weight:bold}
+.meta{font-size:12px;color:#bbb}
+.card.active .meta{color:#222}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{border:1px solid #333;padding:8px;text-align:center}
+th{background:#222}
+.status{padding:10px;background:#101010;border:1px solid #333;border-radius:10px;margin-top:10px;color:#9eff9e;line-height:1.4;white-space:pre-line}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row input,.row select{width:220px}
+.badge{display:inline-block;background:#333;border-radius:8px;padding:6px 10px;margin:4px}
+
+.oled{background:#020805;border:2px solid #25ff75;border-radius:14px;padding:14px;margin-bottom:16px;font-family:Consolas,monospace;color:#78ff9a;box-shadow:0 0 18px rgba(37,255,117,.18) inset,0 0 14px rgba(37,255,117,.12)}
+.oled-title{font-size:13px;color:#b8ffd0;letter-spacing:2px;margin-bottom:8px;text-align:center}
+.oled-track{font-size:22px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;margin-bottom:8px;color:#fff}
+.oled-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}
+.progress-wrap{height:14px;border:1px solid #25ff75;border-radius:10px;overflow:hidden;background:#001b0a}
+.progress-fill{height:100%;width:0%;background:#25ff75;transition:width .08s linear}
+.saved-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+.saved-box button,.saved-box select,.saved-box input{width:100%}
+
+.bg-preview{height:96px;border:1px dashed #555;border-radius:12px;background:#111 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#aaa;margin-top:8px;overflow:hidden}
+.piano-wrap{overflow-x:auto;padding:12px 4px 4px;background:#101010;border:1px solid #333;border-radius:12px}
+.piano{display:flex;align-items:flex-start;min-width:max-content;height:178px;position:relative}
+.key{position:relative;border:none;margin:0;border-radius:0 0 8px 8px;cursor:pointer;user-select:none;font-weight:bold;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;transition:.08s transform,.08s filter,.08s background}
+.key.white{width:54px;height:168px;background:#f7f7f7;color:#111;border:1px solid #aaa;z-index:1}
+.key.black{width:34px;height:104px;background:#111;color:#fff;margin-left:-17px;margin-right:-17px;z-index:2;border:1px solid #333;padding-bottom:8px;font-size:11px}
+.key.active,.key:active{background:#f6b21a!important;color:#111!important;filter:drop-shadow(0 0 12px #f6b21a);transform:translateY(2px)}
+.key small{position:absolute;bottom:28px;font-size:10px;color:inherit;opacity:.7}
+.piano-info{font-size:13px;color:#bbb;margin-top:10px;line-height:1.5}
+
+@media(max-width:760px){.saved-box{grid-template-columns:1fr}.grid{grid-template-columns:repeat(3,1fr)}}
+
+/* ===== LOGIN SECURITY LOCAL HTML ===== */
+body.locked .container, body.locked header{filter:blur(8px);pointer-events:none;user-select:none}
+.login-screen{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:linear-gradient(135deg,rgba(0,0,0,.92),rgba(25,15,0,.92))}
+body.locked .login-screen{display:flex}
+.login-card{width:min(420px,100%);background:#171717;border:1px solid #444;border-radius:18px;padding:22px;box-shadow:0 20px 80px rgba(0,0,0,.55)}
+.login-card h2{margin:0 0 6px;text-align:center;color:#f6b21a}
+.login-card p{text-align:center;color:#bbb;margin:0 0 16px;font-size:14px}
+.login-card input{width:100%;padding:13px;border-radius:10px;border:1px solid #555;background:#0d0d0d;color:#fff;margin:8px 0}
+.login-card button{width:100%;margin:10px 0 0}
+.login-error{color:#ff8080;font-size:13px;min-height:18px;text-align:center;margin-top:10px}
+.logout-btn{position:absolute;right:16px;top:14px;background:#333!important;color:#fff!important;padding:8px 12px!important;font-size:12px}
+
+</style>
+</head>
+<body class="locked">
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h2>MON AIRHORN ACCESS</h2>
+    <p>Masukkan kode akses yang sudah dibeli.</p>
+    <input type="text" id="loginUser" placeholder="Kode akses, contoh MON-0001" autocomplete="off" style="text-transform:uppercase">
+    <input type="password" id="loginPass" placeholder="PIN akses" autocomplete="current-password">
+    <button class="blue" onclick="doLogin()">MASUK</button>
+    <button onclick="buyAccessCode()">BELI KODE VIA WHATSAPP</button>
+    <div class="login-error" id="loginError"></div>
+    <p style="font-size:12px;margin-top:14px;color:#888">
+      Demo: MON-TEST-001 / 123456<br>
+      Tambah user lewat file access.json di GitHub.
+    </p>
+  </div>
+</div>
+
+
+<header>
+  <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
+  <h1>MsT AIRHORN TESTER 48 NOT</h1>
+  <small>48 NOT Smart Airhorn Controller</small>
+</header>
+
+<div class="container">
+
+
+<div class="panel">
+  <h3>Sistem Kode Akses GitHub + Netlify</h3>
+  <div class="status" id="accessInfo">Kode akses dibaca dari access.json. Tambah user lewat GitHub, lalu Netlify update otomatis.</div>
+</div>
+
+<div class="oled">
+  <div class="oled-title">MsT AIRHORN TESTER 48 NOT</div>
+  <div class="oled-track" id="oledTrack">NO MIDI / BELUM ADA LAGU</div>
+  <div class="oled-row">
+    <span id="oledState">STOP</span>
+    <span id="oledTime">00:00 / 00:00</span>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="oledProgress"></div></div>
+</div>
+
+
+<div class="panel">
+  <h3>Kontrol Module</h3>
+  <input type="file" id="midiFile" accept=".mid,.midi">
+  <button class="blue" onclick="enableAudio()">AKTIFKAN SUARA</button>
+  <button class="blue" onclick="resetAudioEngine()">RESET SUARA</button>
+  <button onclick="playMidi()">PLAY MIDI NORMAL</button>
+  <button class="gray" onclick="playMidiDebug()">PLAY C4 TEST INTERNAL</button>
+  <button class="stop" onclick="stopAll()">STOP</button>
+  <button class="gray" onclick="analyzeOnly()">CEK RANGE MIDI</button>
+  <button class="gray" onclick="testLowHigh()">TEST NADA RENDAH → TINGGI</button>
+
+  <div class="row">
+    <label>Mode Mapping</label>
+    <select id="mapMode">
+      <option value="auto">AUTO FIX - G2 sampai F#6 / semua range aman</option>
+      <option value="29">Paksa MIDI 29–64</option>
+      <option value="43">Paksa MIDI 43–90 / G2–F#6</option>
+      <option value="55">Paksa MIDI 55–90</option>
+      <option value="60">Paksa MIDI 60–95 / C4–B6</option>
+    </select>
+
+    <label>Volume</label>
+    <input type="range" id="volume" min="0" max="2.5" step="0.01" value="2.3">
+
+    <label>Speed</label>
+    <input type="range" id="speed" min="0.5" max="2" step="0.05" value="1">
+    <span id="speedText">1.00x</span>
+  </div>
+
+  <div class="status" id="status">Klik “Aktifkan Suara”, pilih file MIDI, lalu PLAY MIDI NORMAL.</div>
+</div>
+
+<div class="panel">
+  <h3>Upload Background Tampilan</h3>
+  <input type="file" id="bgFile" accept="image/*">
+  <div class="row">
+    <button class="blue" onclick="uploadBackground()">PASANG BACKGROUND</button>
+    <button class="gray" onclick="clearBackground()">HAPUS BACKGROUND</button>
+    <label>Gelap Background</label>
+    <input type="range" id="bgDark" min="0.15" max="0.9" step="0.01" value="0.62">
+  </div>
+  <div class="bg-preview" id="bgPreview">Belum ada background</div>
+  <div class="status" id="bgStatus">Upload foto/gambar untuk mengganti background tampilan tester.</div>
+</div>
+
+
+<div class="panel">
+  <h3>Pengaturan Login Admin</h3>
+  <div class="saved-box">
+    <div>
+      <label>Username baru</label>
+      <input type="text" id="newLoginUser" placeholder="Username baru">
+    </div>
+    <div>
+      <label>Password baru</label>
+      <input type="password" id="newLoginPass" placeholder="Minimal 6 karakter">
+    </div>
+    <button class="blue" onclick="changeLoginCredential()">SIMPAN USERNAME & PASSWORD</button>
+    <button class="gray" onclick="resetLoginCredential()">RESET KE DEFAULT</button>
+  </div>
+  <div class="status" id="loginSettingStatus">Setelah username/password diganti, gunakan data baru saat login berikutnya.</div>
+</div>
+
+<div class="panel">
+  <h3>Test Nada Piano 48 Not</h3>
+  <div class="piano-wrap"><div class="piano" id="pianoKeys"></div></div>
+  <div class="piano-info">Klik tuts piano untuk test nada satu per satu. Urutan tetap mengikuti mapping G2–F#6 dan output modul 48 channel.</div>
+</div>
+
+
+
+<div class="panel">
+  <h3>Playlist MIDI Netlify</h3>
+  <p style="color:#bbb;line-height:1.5;margin-top:0">
+    Cara pakai: copy semua file <b>.mid</b> / <b>.midi</b> ke folder <b>midi</b>, lalu klik <b>LOAD PLAYLIST</b>.
+    Setelah itu lagu bisa dipilih dari daftar, tidak perlu upload satu-satu lagi.
+  </p>
+  <input type="file" id="midiFolderInput" accept=".mid,.midi" webkitdirectory directory multiple style="display:none">
+  <button class="blue" onclick="loadNetlifyMidiLibrary()">LOAD PLAYLIST</button>
+  <button class="gray" onclick="loadNetlifyMidiLibrary()">REFRESH PLAYLIST</button>
+  <div class="saved-box">
+    <div>
+      <label>Daftar lagu dari folder MIDI</label>
+      <select id="folderMidiList"><option value="">Belum ada file MIDI</option></select>
+    </div>
+    <div>
+      <button onclick="loadFolderMidi()">LOAD LAGU PILIHAN</button>
+      <button class="blue" onclick="playFolderMidiNow()">LOAD & PLAY</button>
+    </div>
+  </div>
+  <div class="status" id="folderMidiStatus">Belum ada folder MIDI dipilih. Copy file MIDI ke folder midi, lalu pilih folder tersebut.</div>
+</div>
+
+<div class="panel">
+  <h3>Menu Save Nada / Upload MIDI</h3>
+  <div class="saved-box">
+    <div>
+      <label>Nama lagu / track yang akan disimpan</label>
+      <input type="text" id="saveName" placeholder="Contoh: Basuri C4 Test">
+    </div>
+    <button onclick="saveNada()">SAVE NADA KE LIST</button>
+    <div>
+      <label>Daftar nada tersimpan</label>
+      <select id="savedList"><option value="">Belum ada nada tersimpan</option></select>
+    </div>
+    <div>
+      <button class="blue" onclick="loadSavedNada()">LOAD NADA TERSIMPAN</button>
+      <button class="stop" onclick="deleteSavedNada()">HAPUS NADA</button>
+    </div>
+  </div>
+  <div class="status" id="saveStatus">File yang disimpan tersimpan di browser ini, seperti memori simulasi modul.</div>
+</div>
+
+<div class="panel">
+  <h3>Output Modul 48 Channel</h3>
+  <div>
+    <span class="badge">Socket 1 = OUT 1–6</span>
+    <span class="badge">Socket 2 = OUT 7–12</span>
+    <span class="badge">Socket 3 = OUT 13–18</span>
+    <span class="badge">Socket 4 = OUT 19–24</span>
+    <span class="badge">Socket 5 = OUT 25–30</span>
+    <span class="badge">Socket 6 = OUT 31–36</span>
+    <span class="badge">Socket 7 = OUT 37–42</span>
+    <span class="badge">Socket 8 = OUT 43–48</span>
+    <span class="badge">Range Nada = G2–F#6</span>
+    <span class="badge">Socket 7 = OUT 37–42</span>
+    <span class="badge">Socket 8 = OUT 43–48</span>
+  </div>
+  <br>
+  <div class="grid" id="outputGrid"></div>
+</div>
+
+<div class="panel">
+  <h3>Mapping Label Alat Test G2–F#6</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Urutan Nada</th><th>Label Test</th><th>Output Modul</th><th>Socket</th><th>Pin</th><th>Panjang Corong</th>
+        </tr>
+      </thead>
+      <tbody id="mappingTable"></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<script>
+
+// ===== LOGIN ACCESS.JSON TANPA FIREBASE =====
+const WHATSAPP_NUMBER = "088219915904";
+let isLoginOK = false;
+let ACCESS_CODES = {};
+
+function normalizeCode(v){ return (v || "").trim().toUpperCase(); }
+
+async function loadAccessCodes(){
+  try{
+    const res = await fetch("access.json?t=" + Date.now(), {cache:"no-store"});
+    if(!res.ok) throw new Error("access.json tidak ditemukan");
+    ACCESS_CODES = await res.json();
+    const info = document.getElementById("accessInfo");
+    if(info) info.innerText = "access.json terbaca. Jumlah kode: " + Object.keys(ACCESS_CODES).length;
+  }catch(e){
+    ACCESS_CODES = {};
+    const info = document.getElementById("accessInfo");
+    if(info) info.innerText = "Gagal membaca access.json: " + e.message;
+  }
+}
+
+function checkLogin(){
+  isLoginOK = false;
+  document.body.classList.add("locked");
+  loadAccessCodes();
+}
+
+function buyAccessCode(){
+  const text = encodeURIComponent("Halo admin, saya mau beli kode akses MON AIRHORN.");
+  const clean = WHATSAPP_NUMBER.replace(/^0/,"").replace(/\D/g,"");
+  window.open("https://wa.me/62" + clean + "?text=" + text, "_blank");
+}
+
+async function doLogin(){
+  if(!Object.keys(ACCESS_CODES).length) await loadAccessCodes();
+  const code = normalizeCode(document.getElementById("loginUser").value);
+  const pin = document.getElementById("loginPass").value || "";
+  const err = document.getElementById("loginError");
+
+  if(!code || !pin){ err.innerText = "Masukkan kode akses dan PIN."; return; }
+
+  const data = ACCESS_CODES[code];
+  if(!data){ err.innerText = "Kode tidak terdaftar. Hubungi admin."; return; }
+  if(data.pin !== pin){ err.innerText = "PIN salah."; return; }
+  if(data.active === false){ err.innerText = "Kode diblokir / tidak aktif."; return; }
+
+  const today = new Date().toISOString().slice(0,10);
+  if(data.expired && today > data.expired){ err.innerText = "Kode sudah expired."; return; }
+
+  isLoginOK = true;
+  err.innerText = "";
+  document.getElementById("loginPass").value = "";
+  document.body.classList.remove("locked");
+
+  const info = document.getElementById("accessInfo");
+  if(info){
+    info.innerText = "Login aktif: " + code + "\\nNama: " + (data.name || "-") + "\\nExpired: " + (data.expired || "-");
+  }
+}
+
+function doLogout(){
+  stopAll();
+  isLoginOK = false;
+  document.body.classList.add("locked");
+}
+
+function changeLoginCredential(){
+  const st=document.getElementById("loginSettingStatus");
+  if(st) st.innerText = "Tambah/edit user dilakukan dari access.json di GitHub.";
+}
+function resetLoginCredential(){
+  const st=document.getElementById("loginSettingStatus");
+  if(st) st.innerText = "Reset/blokir user dilakukan dari access.json.";
+}
+
+window.addEventListener("load", checkLogin);
+document.addEventListener("keydown", e=>{
+  if(document.body.classList.contains("locked") && e.key==="Enter") doLogin();
+});
+
+const outputs = [
+  {out:1, socket:1, pin:1, cm:33.5},
+  {out:2, socket:1, pin:2, cm:31},
+  {out:3, socket:1, pin:3, cm:28.5},
+  {out:4, socket:1, pin:4, cm:26},
+  {out:5, socket:1, pin:5, cm:23.5},
+  {out:6, socket:1, pin:6, cm:21},
+  {out:7, socket:2, pin:1, cm:39},
+  {out:8, socket:2, pin:2, cm:37},
+  {out:9, socket:2, pin:3, cm:20.5},
+  {out:10, socket:2, pin:4, cm:19},
+  {out:11, socket:2, pin:5, cm:17.5},
+  {out:12, socket:2, pin:6, cm:15.5},
+  {out:13, socket:3, pin:1, cm:34.5},
+  {out:14, socket:3, pin:2, cm:32.5},
+  {out:15, socket:3, pin:3, cm:29.5},
+  {out:16, socket:3, pin:4, cm:24.5},
+  {out:17, socket:3, pin:5, cm:22},
+  {out:18, socket:3, pin:6, cm:16.5},
+  {out:19, socket:4, pin:1, cm:58.5},
+  {out:20, socket:4, pin:2, cm:54},
+  {out:21, socket:4, pin:3, cm:49.5},
+  {out:22, socket:4, pin:4, cm:46},
+  {out:23, socket:4, pin:5, cm:42},
+  {out:24, socket:4, pin:6, cm:40},
+  {out:25, socket:5, pin:1, cm:60},
+  {out:26, socket:5, pin:2, cm:31},
+  {out:27, socket:5, pin:3, cm:10},
+  {out:28, socket:5, pin:4, cm:50},
+  {out:29, socket:5, pin:5, cm:11},
+  {out:30, socket:5, pin:6, cm:51},
+  {out:31, socket:6, pin:1, cm:80},
+  {out:32, socket:6, pin:2, cm:74},
+  {out:33, socket:6, pin:3, cm:9.5},
+  {out:34, socket:6, pin:4, cm:72},
+  {out:35, socket:6, pin:5, cm:63},
+  {out:36, socket:6, pin:6, cm:73},
+  {out:37, socket:7, pin:1, cm:88},
+  {out:38, socket:7, pin:2, cm:84},
+  {out:39, socket:7, pin:3, cm:78},
+  {out:40, socket:7, pin:4, cm:70},
+  {out:41, socket:7, pin:5, cm:66},
+  {out:42, socket:7, pin:6, cm:62},
+  {out:43, socket:8, pin:1, cm:56},
+  {out:44, socket:8, pin:2, cm:52},
+  {out:45, socket:8, pin:3, cm:48},
+  {out:46, socket:8, pin:4, cm:44},
+  {out:47, socket:8, pin:5, cm:38},
+  {out:48, socket:8, pin:6, cm:35}
+];
+
+const midiToOutput = [
+  31, 32, 36, 34, 35, 25, 19, 20, 30, 28, 21, 22,
+  23, 24, 7, 8, 13, 1, 14, 2, 26, 15, 3, 4,
+  16, 5, 17, 6, 9, 10, 11, 18, 12, 29, 27, 33,
+  37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48
+];
+
+const testerLabels = [
+  "G2", "G#2", "A2", "A#2", "B2", "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3",
+  "G3", "G#3", "A3", "A#3", "B3", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4",
+  "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5",
+  "G5", "G#5", "A5", "A#5", "B5", "C6", "C#6", "D6", "D#6", "E6", "F6", "F#6"
+];
+
+const noteNames = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+function midiName(n){return noteNames[n%12] + (Math.floor(n/12)-1)}
+function midiFreqFromIndex(idx){
+  // Suara simulator tetap pakai frekuensi musikal dari label G2-F#6
+  const midiG2 = 43;
+  return 440 * Math.pow(2,((midiG2 + idx)-69)/12);
+}
+
+const outMap = {};
+outputs.forEach(o=>outMap[o.out]=o);
+
+const mapping = [];
+for(let i=0;i<48;i++){
+  const out = midiToOutput[i];
+  const item = outMap[out];
+  mapping.push({order:i+1,label:testerLabels[i],out,socket:item.socket,pin:item.pin,cm:item.cm});
+}
+const outputToMapping = {};
+mapping.forEach(m=>outputToMapping[m.out]=m);
+
+let audioCtx=null, masterGain=null, compressor=null;
+let timers=[];
+let activeNodes=[];
+let playing=false;
+let progressTimer=null;
+let playStartedAt=0;
+let playTotalSec=0;
+let currentTrackName="";
+
+function buildAudioEngine(){
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  compressor = audioCtx.createDynamicsCompressor();
+  compressor.threshold.value = -20;
+  compressor.knee.value = 16;
+  compressor.ratio.value = 7;
+  compressor.attack.value = 0.002;
+  compressor.release.value = 0.13;
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = parseFloat(document.getElementById("volume").value || "2.3");
+  masterGain.connect(compressor);
+  compressor.connect(audioCtx.destination);
+}
+function enableAudio(){
+  try{
+    if(!audioCtx || audioCtx.state === "closed") buildAudioEngine();
+    audioCtx.resume();
+    // bunyi kecil untuk membuka audio browser/iPhone/Chrome
+    const o=audioCtx.createOscillator();
+    const g=audioCtx.createGain();
+    o.frequency.value=220; g.gain.value=0.0001;
+    o.connect(g); g.connect(masterGain);
+    o.start(); o.stop(audioCtx.currentTime+0.01);
+    statusText("Suara aktif. Sekarang pilih MIDI lalu Play.");
+  }catch(err){ statusText("Error aktifkan suara: "+err.message); }
+}
+function resetAudioEngine(){
+  try{
+    clearTimers(); allOff(); playing=false;
+    activeNodes.forEach(n=>{try{n.stop(0)}catch(e){}});
+    activeNodes=[];
+    if(audioCtx && audioCtx.state !== "closed") audioCtx.close();
+  }catch(e){}
+  audioCtx=null; masterGain=null; compressor=null;
+  buildAudioEngine(); audioCtx.resume();
+  statusText("Audio sudah di-reset. Coba TEST NADA atau PLAY MIDI lagi.");
+}
+document.getElementById("volume").addEventListener("input", e=>{
+  if(masterGain) masterGain.gain.value=parseFloat(e.target.value);
+});
+document.getElementById("speed").addEventListener("input", e=>{
+  document.getElementById("speedText").innerText=parseFloat(e.target.value).toFixed(2)+"x";
+});
+
+
+function bgStatusText(t){const el=document.getElementById("bgStatus"); if(el) el.innerText=t;}
+function setBackground(data,dark){
+  if(data){document.body.style.setProperty("--bg-img", `url("${data}")`);} else {document.body.style.removeProperty("--bg-img");}
+  if(dark!==undefined){document.body.style.setProperty("--bg-dark", dark); const r=document.getElementById("bgDark"); if(r) r.value=dark;}
+  const prev=document.getElementById("bgPreview");
+  if(prev){prev.style.backgroundImage=data?`url("${data}")`:"none"; prev.innerText=data?"Background aktif":"Belum ada background";}
+}
+function loadBackgroundSetting(){
+  const data=localStorage.getItem("mst_airhorn_bg")||"";
+  const dark=localStorage.getItem("mst_airhorn_bg_dark")||"0.62";
+  setBackground(data,dark);
+  const range=document.getElementById("bgDark");
+  if(range){range.addEventListener("input",e=>{document.body.style.setProperty("--bg-dark", e.target.value); localStorage.setItem("mst_airhorn_bg_dark", e.target.value);});}
+}
+function uploadBackground(){
+  const file=document.getElementById("bgFile").files[0];
+  if(!file){bgStatusText("Pilih gambar background dulu.");return;}
+  const r=new FileReader();
+  r.onload=()=>{
+    localStorage.setItem("mst_airhorn_bg", r.result);
+    const dark=document.getElementById("bgDark").value||"0.62";
+    localStorage.setItem("mst_airhorn_bg_dark", dark);
+    setBackground(r.result,dark);
+    bgStatusText("Background berhasil dipasang dan tersimpan di browser ini.");
+  };
+  r.onerror=()=>bgStatusText("Gagal membaca file background.");
+  r.readAsDataURL(file);
+}
+function clearBackground(){
+  localStorage.removeItem("mst_airhorn_bg");
+  setBackground("", document.getElementById("bgDark").value||"0.62");
+  document.getElementById("bgFile").value="";
+  bgStatusText("Background dihapus. Tampilan kembali gelap standar.");
+}
+function renderPiano(){
+  const piano=document.getElementById("pianoKeys"); if(!piano) return;
+  piano.innerHTML="";
+  mapping.forEach((m,i)=>{
+    const isBlack=m.label.includes("#");
+    const key=document.createElement("button");
+    key.className="key "+(isBlack?"black":"white");
+    key.id="piano"+m.out;
+    key.onclick=()=>pulseOut(m.out);
+    key.innerHTML=`<span>${m.label}</span><small>OUT ${m.out}</small>`;
+    piano.appendChild(key);
+  });
+}
+
+function render(){
+  const grid=document.getElementById("outputGrid");
+  grid.innerHTML="";
+  outputs.forEach(o=>{
+    const m=outputToMapping[o.out];
+    const d=document.createElement("div");
+    d.className="card";
+    d.id="out"+o.out;
+    d.onclick=()=>pulseOut(o.out);
+    d.innerHTML=`
+      <div class="note">OUT ${o.out}</div>
+      <div>${m.label}</div>
+      <div class="meta">Urutan ${m.order}/48</div>
+      <div class="meta">Socket ${o.socket} Pin ${o.pin}</div>
+      <div class="meta">${o.cm} cm</div>`;
+    grid.appendChild(d);
+  });
+
+  const tbody=document.getElementById("mappingTable");
+  tbody.innerHTML="";
+  mapping.forEach(m=>{
+    tbody.innerHTML += `<tr><td>${m.order}</td><td>${m.label}</td><td>${m.out}</td><td>${m.socket}</td><td>${m.pin}</td><td>${m.cm} cm</td></tr>`;
+  });
+}
+render();
+renderPiano();
+renderSavedList();
+loadBackgroundSetting();
+document.getElementById("midiFile").addEventListener("change", e=>{
+  const f=e.target.files[0];
+  if(f){currentTrackName=f.name.replace(/\.(mid|midi)$/i,""); document.getElementById("saveName").value=currentTrackName; updateOLED(currentTrackName,"READY",0,0);}
+});
+
+
+function formatTime(sec){
+  sec=Math.max(0, Math.floor(sec||0));
+  const m=String(Math.floor(sec/60)).padStart(2,"0");
+  const s=String(sec%60).padStart(2,"0");
+  return `${m}:${s}`;
+}
+function updateOLED(track,state,cur,total){
+  document.getElementById("oledTrack").innerText = track || "NO MIDI / BELUM ADA LAGU";
+  document.getElementById("oledState").innerText = state || "STOP";
+  document.getElementById("oledTime").innerText = `${formatTime(cur)} / ${formatTime(total)}`;
+  const pct = total>0 ? Math.min(100, Math.max(0, cur/total*100)) : 0;
+  document.getElementById("oledProgress").style.width = pct + "%";
+}
+function startOLEDProgress(track,total){
+  currentTrackName=track||"UNTITLED MIDI";
+  playTotalSec=total||0;
+  playStartedAt=Date.now();
+  if(progressTimer) clearInterval(progressTimer);
+  updateOLED(currentTrackName,"PLAY",0,playTotalSec);
+  progressTimer=setInterval(()=>{
+    if(!playing){clearInterval(progressTimer); progressTimer=null; return;}
+    const cur=(Date.now()-playStartedAt)/1000;
+    updateOLED(currentTrackName,"PLAY",Math.min(cur,playTotalSec),playTotalSec);
+  },100);
+}
+function stopOLEDProgress(state="STOP"){
+  if(progressTimer){clearInterval(progressTimer);progressTimer=null;}
+  updateOLED(currentTrackName||"NO MIDI / BELUM ADA LAGU",state,0,playTotalSec||0);
+}
+function saveStatusText(t){const el=document.getElementById("saveStatus"); if(el) el.innerText=t;}
+function getSavedNada(){try{return JSON.parse(localStorage.getItem("mst48_saved_nada")||"[]")}catch(e){return []}}
+function setSavedNada(list){localStorage.setItem("mst48_saved_nada",JSON.stringify(list)); renderSavedList();}
+function renderSavedList(){
+  const sel=document.getElementById("savedList"); if(!sel) return;
+  const list=getSavedNada();
+  sel.innerHTML=list.length?"":"<option value=''>Belum ada nada tersimpan</option>";
+  list.forEach((item,i)=>{const opt=document.createElement("option"); opt.value=i; opt.textContent=item.name; sel.appendChild(opt);});
+}
+function fileToDataURL(file){return new Promise((res,rej)=>{const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file);});}
+async function saveNada(){
+  const file=document.getElementById("midiFile").files[0];
+  if(!file){saveStatusText("Pilih/upload file MIDI dulu sebelum save nada.");return;}
+  const name=(document.getElementById("saveName").value||file.name.replace(/\.(mid|midi)$/i,"")).trim();
+  const data=await fileToDataURL(file);
+  const list=getSavedNada();
+  list.push({name:name||file.name,fileName:file.name,data,created:new Date().toISOString()});
+  setSavedNada(list);
+  saveStatusText(`Nada disimpan: ${name||file.name}`);
+}
+async function loadSavedNada(){
+  const sel=document.getElementById("savedList");
+  const idx=parseInt(sel.value,10); const list=getSavedNada();
+  if(isNaN(idx)||!list[idx]){saveStatusText("Pilih nada tersimpan dulu.");return;}
+  const item=list[idx];
+  const blob=await (await fetch(item.data)).blob();
+  const file=new File([blob], item.fileName||`${item.name}.mid`, {type:"audio/midi"});
+  const dt=new DataTransfer(); dt.items.add(file);
+  document.getElementById("midiFile").files=dt.files;
+  document.getElementById("saveName").value=item.name;
+  currentTrackName=item.name;
+  updateOLED(item.name,"READY",0,0);
+  saveStatusText(`Loaded: ${item.name}. Sekarang klik PLAY MIDI NORMAL.`);
+}
+function deleteSavedNada(){
+  const sel=document.getElementById("savedList"); const idx=parseInt(sel.value,10); const list=getSavedNada();
+  if(isNaN(idx)||!list[idx]){saveStatusText("Pilih nada yang mau dihapus.");return;}
+  const removed=list.splice(idx,1)[0]; setSavedNada(list);
+  saveStatusText(`Dihapus: ${removed.name}`);
+}
+
+function statusText(t){document.getElementById("status").innerText=t}
+function setActive(out,on){const el=document.getElementById("out"+out); if(el) el.classList.toggle("active",on); const pk=document.getElementById("piano"+out); if(pk) pk.classList.toggle("active",on)}
+function clearTimers(){timers.forEach(t=>clearTimeout(t));timers=[]}
+function allOff(){outputs.forEach(o=>setActive(o.out,false))}
+function stopAll(){
+  playing=false; clearTimers(); allOff();
+  activeNodes.forEach(n=>{try{n.stop(0)}catch(e){}});
+  activeNodes=[];
+  stopOLEDProgress("STOP");
+  statusText("Stop. Audio tetap aktif, bisa langsung test nada lagi.")
+}
+
+function playHornByIndex(idx, startTime, duration){
+  if(!audioCtx) return;
+  const freq=midiFreqFromIndex(idx);
+  const dur=Math.max(0.075, Math.min(duration, 0.65));
+  const end=startTime+dur;
+
+  const osc1=audioCtx.createOscillator();
+  const osc2=audioCtx.createOscillator();
+  const osc3=audioCtx.createOscillator();
+  const noiseBuffer=audioCtx.createBuffer(1, Math.max(1, Math.floor(audioCtx.sampleRate*dur)), audioCtx.sampleRate);
+  const noiseData=noiseBuffer.getChannelData(0);
+  for(let i=0;i<noiseData.length;i++) noiseData[i]=(Math.random()*2-1)*0.25;
+
+  const noise=audioCtx.createBufferSource();
+  noise.buffer=noiseBuffer;
+
+  const filter=audioCtx.createBiquadFilter();
+  const high=audioCtx.createBiquadFilter();
+  const gain=audioCtx.createGain();
+  const noiseGain=audioCtx.createGain();
+
+  osc1.type="sawtooth";
+  osc2.type="square";
+  osc3.type="sawtooth";
+
+  osc1.frequency.setValueAtTime(freq,startTime);
+  osc2.frequency.setValueAtTime(freq*1.006,startTime);
+  osc3.frequency.setValueAtTime(freq*2.01,startTime);
+
+  filter.type="bandpass";
+  filter.frequency.setValueAtTime(Math.max(650, freq*3.8),startTime);
+  filter.Q.setValueAtTime(5.5,startTime);
+
+  high.type="highpass";
+  high.frequency.setValueAtTime(120,startTime);
+
+  noiseGain.gain.setValueAtTime(0.08,startTime);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001,end);
+
+  gain.gain.setValueAtTime(0.0001,startTime);
+  gain.gain.exponentialRampToValueAtTime(1.15,startTime+0.006);
+  gain.gain.setValueAtTime(0.92,Math.max(startTime+0.02,end-0.055));
+  gain.gain.exponentialRampToValueAtTime(0.0001,end);
+
+  osc1.connect(filter); osc2.connect(filter); osc3.connect(filter);
+  noise.connect(noiseGain); noiseGain.connect(filter);
+  filter.connect(high); high.connect(gain); gain.connect(masterGain);
+
+  activeNodes.push(osc1,osc2,osc3,noise);
+  osc1.onended=()=>{activeNodes=activeNodes.filter(n=>n!==osc1 && n!==osc2 && n!==osc3 && n!==noise)};
+  try{
+    osc1.start(startTime); osc2.start(startTime); osc3.start(startTime); noise.start(startTime);
+    osc1.stop(end+0.03); osc2.stop(end+0.03); osc3.stop(end+0.03); noise.stop(end+0.03);
+  }catch(e){ console.log("playHorn error", e); }
+}
+
+function pulseOut(out){
+  enableAudio();
+  const m=outputToMapping[out];
+  const idx=m.order-1;
+  setActive(out,true);
+  playHornByIndex(idx,audioCtx.currentTime+0.02,0.34);
+  statusText(`Manual OUT ${out} | ${m.label} | Socket ${m.socket} Pin ${m.pin}`);
+  timers.push(setTimeout(()=>setActive(out,false),360));
+}
+
+function testLowHigh(){
+  stopAll(); enableAudio();
+  let i=0;
+  function next(){
+    if(i>=mapping.length){allOff();statusText("Test nada rendah ke tinggi selesai.");return}
+    allOff();
+    const m=mapping[i];
+    setActive(m.out,true);
+    playHornByIndex(i,audioCtx.currentTime+0.02,0.30);
+    statusText(`Test ${m.order}/48 | ${m.label} → OUT ${m.out} | Socket ${m.socket} Pin ${m.pin}`);
+    timers.push(setTimeout(()=>{setActive(m.out,false);i++;next();},340));
+  }
+  next();
+}
+
+function readStr(bytes,pos,len){let s="";for(let i=0;i<len;i++)s+=String.fromCharCode(bytes[pos+i]);return s}
+function read16(bytes,pos){return (bytes[pos]<<8)|bytes[pos+1]}
+function read32(bytes,pos){return (bytes[pos]<<24)|(bytes[pos+1]<<16)|(bytes[pos+2]<<8)|bytes[pos+3]}
+function readVar(bytes,ref){let v=0,b;do{b=bytes[ref.pos++];v=(v<<7)|(b&0x7F)}while(b&0x80);return v}
+
+function parseMidiRaw(bytes){
+  let pos=0;
+  if(readStr(bytes,pos,4)!=="MThd") throw new Error("Bukan file MIDI valid");
+  pos+=4;
+  const headerLen=read32(bytes,pos); pos+=4;
+  const format=read16(bytes,pos); pos+=2;
+  const ntrks=read16(bytes,pos); pos+=2;
+  const division=read16(bytes,pos); pos+=2;
+  pos=8+headerLen;
+  if(division & 0x8000) throw new Error("SMPTE MIDI belum didukung");
+  const ppq=division;
+  let raw=[];
+
+  for(let tr=0;tr<ntrks;tr++){
+    if(pos+8>bytes.length) break;
+    if(readStr(bytes,pos,4)!=="MTrk") break;
+    pos+=4;
+    const len=read32(bytes,pos); pos+=4;
+    const end=pos+len;
+    let tempo=500000, absMicro=0, running=0;
+
+    while(pos<end){
+      const ref={pos};
+      const delta=readVar(bytes,ref);
+      pos=ref.pos;
+      absMicro += (delta*tempo)/ppq;
+
+      let status=bytes[pos++];
+      if(status<0x80){pos--; status=running}
+      else running=status;
+
+      if(status===0xFF){
+        const type=bytes[pos++];
+        const r={pos};
+        const l=readVar(bytes,r);
+        pos=r.pos;
+        if(type===0x51 && l===3) tempo=(bytes[pos]<<16)|(bytes[pos+1]<<8)|bytes[pos+2];
+        pos+=l; continue;
+      }
+
+      if(status===0xF0 || status===0xF7){
+        const r={pos}; const l=readVar(bytes,r); pos=r.pos+l; continue;
+      }
+
+      const cmd=status&0xF0;
+      if(pos>=end) break;
+      let d1=bytes[pos++], d2=null;
+      if(cmd!==0xC0 && cmd!==0xD0){ if(pos>=end) break; d2=bytes[pos++]; }
+
+      if(cmd===0x90 || cmd===0x80){
+        const note=d1;
+        const vel=(cmd===0x80)?0:d2;
+        raw.push({time:absMicro/1000000,note,type:vel>0?"on":"off"});
+      }
+    }
+    pos=end;
+  }
+  raw.sort((a,b)=>a.time-b.time);
+  return {format,ntrks,ppq,raw};
+}
+
+function chooseBase(raw){
+  const ons = raw.filter(e=>e.type==="on").map(e=>e.note);
+  if(!ons.length) return null;
+  const min=Math.min(...ons), max=Math.max(...ons);
+  const mode=document.getElementById("mapMode").value;
+  if(mode!=="auto") return {base:parseInt(mode), min, max, reason:"manual"};
+
+  // AUTO FIX 48 NOT:
+  // MON AIRHORN 48 memakai range tetap G2-F#6 = MIDI 43-90.
+  // Jadi nada MIDI dipetakan dari bawah ke atas sesuai posisi aslinya.
+  // Kalau file terlalu rendah/tinggi, baru digeser oktaf agar masuk range 48 not.
+  return {base:43, min, max, reason:"auto-g2-fsharp6-48not"};
+}
+function midiNoteToIndex(note, base){
+  let idx = note - base;
+
+  // 48 NOT = index 0-47.
+  // Tidak dipaksa ke nada paling tinggi; hanya di-fold per oktaf bila keluar range.
+  while(idx < 0) idx += 12;
+  while(idx > 47) idx -= 12;
+
+  if(idx < 0 || idx > 47) return null;
+  return idx;
+}
+
+function rawToNotes(raw){
+  const active={}, notes=[];
+  for(const e of raw){
+    if(e.type==="on"){
+      if(!active[e.note]) active[e.note]=[];
+      active[e.note].push(e.time);
+    }else{
+      if(active[e.note] && active[e.note].length){
+        const st=active[e.note].shift();
+        notes.push({start:st,duration:Math.max(0.07,e.time-st),note:e.note});
+      }
+    }
+  }
+  Object.keys(active).forEach(k=>{
+    active[k].forEach(st=>notes.push({start:st,duration:0.16,note:parseInt(k)}));
+  });
+  notes.sort((a,b)=>a.start-b.start);
+  return notes;
+}
+
+async function getParsedFile(){
+  const file=document.getElementById("midiFile").files[0];
+  if(!file) throw new Error("Pilih file MIDI dulu.");
+  const buffer=await file.arrayBuffer();
+  const bytes=new Uint8Array(buffer);
+  const parsed=parseMidiRaw(bytes);
+  parsed.fileName=file.name;
+  parsed.notes=rawToNotes(parsed.raw);
+  parsed.baseInfo=chooseBase(parsed.raw);
+  return parsed;
+}
+
+async function analyzeOnly(){
+  try{
+    const parsed=await getParsedFile();
+    const b=parsed.baseInfo;
+    const unique=[...new Set(parsed.raw.filter(e=>e.type==="on").map(e=>e.note))].sort((a,b)=>a-b);
+    statusText(
+      `File: ${parsed.fileName}\n`+
+      `Track: ${parsed.ntrks} | PPQ: ${parsed.ppq}\n`+
+      `Note ON unik: ${unique.length}\n`+
+      `Range asli: MIDI ${b.min} sampai ${b.max} (${midiName(b.min)} - ${midiName(b.max)})\n`+
+      `Mode mapping: ${b.reason.toUpperCase()} | Base dipakai: MIDI ${b.base}\n`+
+      `Saat Play: MIDI ${b.base} akan dianggap G2 / urutan 1`
+    );
+  }catch(e){statusText("Error: "+e.message)}
+}
+
+function normalizeFirstStart(notes){
+  if(!notes.length) return notes;
+  const first = Math.min(...notes.map(n=>n.start));
+  return notes.map(n=>({start:Math.max(0,n.start-first), duration:n.duration, note:n.note}));
+}
+
+function triggerMidiNote(n, base, speed){
+  const idx=midiNoteToIndex(n.note, base);
+  if(idx===null) return false;
+  const out=midiToOutput[idx];
+  const m=outputToMapping[out];
+  setActive(out,true);
+  playHornByIndex(idx,audioCtx.currentTime+0.01,Math.max(0.09, Math.min(n.duration/speed,0.65)));
+  statusText(`PLAY ${m.label} | MIDI asli ${n.note} (${midiName(n.note)}) → OUT ${m.out}\nBase: MIDI ${base} dianggap G2`);
+  timers.push(setTimeout(()=>setActive(out,false), Math.max(90, Math.min(n.duration/speed*1000,650))));
+  return true;
+}
+
+async function playMidi(){
+  // V4: jangan jadwalkan oscillator jauh di masa depan. Browser kadang diam setelah file dipilih.
+  // Semua nada dipicu realtime via setTimeout, jadi manual test dan MIDI pakai mesin suara yang sama.
+  stopAll();
+  enableAudio();
+  if(!audioCtx || audioCtx.state === "closed") buildAudioEngine();
+  try{ await audioCtx.resume(); }catch(e){}
+
+  let parsed;
+  try{parsed=await getParsedFile()}
+  catch(e){statusText("Error: "+e.message);return}
+
+  let notes=normalizeFirstStart(parsed.notes);
+  if(!parsed.baseInfo){statusText("Tidak ada Note ON di file MIDI.");return}
+  const base=parsed.baseInfo.base;
+  if(!notes.length){statusText("Tidak ada note MIDI.");return}
+
+  const speed=parseFloat(document.getElementById("speed").value || "1");
+  let validCount=0;
+  let lastTime=0;
+  playing=true;
+
+  statusText(
+    `MIDI siap dimainkan: ${parsed.fileName}\n`+
+    `Range asli: MIDI ${parsed.baseInfo.min}-${parsed.baseInfo.max} (${midiName(parsed.baseInfo.min)} - ${midiName(parsed.baseInfo.max)})\n`+
+    `Base dipakai: MIDI ${base} = G2 | Trigger realtime aktif`
+  );
+
+  notes.forEach(n=>{
+    const idx=midiNoteToIndex(n.note, base);
+    if(idx===null) return;
+    validCount++;
+    const delay=Math.max(0, n.start/speed*1000);
+    lastTime=Math.max(lastTime,(n.start+n.duration)/speed);
+    timers.push(setTimeout(()=>{
+      if(!playing) return;
+      triggerMidiNote(n, base, speed);
+    }, delay));
+  });
+
+  if(validCount===0){
+    playing=false;
+    updateOLED(parsed.fileName,"ERROR",0,0);
+    statusText(
+      `Tidak ada nada yang masuk ke mapping.\n`+
+      `Range file: MIDI ${parsed.baseInfo.min} - ${parsed.baseInfo.max}\n`+
+      `Coba tombol PLAY C4 TEST INTERNAL untuk memastikan suara browser aktif.`
+    );
+    return;
+  }
+
+  currentTrackName = (document.getElementById("saveName").value || parsed.fileName).replace(/\.(mid|midi)$/i,"");
+  startOLEDProgress(currentTrackName,lastTime);
+
+  timers.push(setTimeout(()=>{
+    playing=false; allOff(); updateOLED(currentTrackName,"SELESAI",playTotalSec,playTotalSec); statusText(`Lagu selesai. Note dimainkan: ${validCount}`);
+  },lastTime*1000+900));
+}
+
+function playMidiDebug(){
+  stopAll(); enableAudio(); playing=true;
+  const base=43;
+  const demo=[60,62,64,65,67,69,71,72]; // C4 D4 E4 F4 G4 A4 B4 C5
+  statusText("Test internal C4 jalan. Kalau ini bunyi, berarti file MIDI sebelumnya perlu dicek range/formatnya.");
+  demo.forEach((note,i)=>{
+    timers.push(setTimeout(()=>{
+      if(!playing) return;
+      triggerMidiNote({note,start:i*0.22,duration:0.18}, base, 1);
+    }, i*240));
+  });
+  startOLEDProgress("C4 TEST INTERNAL", demo.length*0.24);
+  timers.push(setTimeout(()=>{playing=false; allOff(); updateOLED("C4 TEST INTERNAL","SELESAI",demo.length*0.24,demo.length*0.24); statusText("Test internal C4 selesai.");}, demo.length*240+400));
+}
+
+
+// ===== FOLDER MIDI / PLAYLIST TANPA UPLOAD SATU-SATU =====
+let folderMidiFiles = [];
+function folderStatusText(t){
+  const el=document.getElementById("folderMidiStatus");
+  if(el) el.innerText=t;
+}
+function chooseMidiFolder(){
+  const inp=document.getElementById("midiFolderInput");
+  if(inp) inp.click();
+}
+function refreshMidiFolderList(){
+  const inp=document.getElementById("midiFolderInput");
+  if(!inp || !inp.files || !inp.files.length){
+    folderStatusText("Belum ada folder dipilih. Klik LOAD PLAYLIST dulu.");
+    return;
+  }
+  buildFolderMidiList(inp.files);
+}
+function buildFolderMidiList(files){
+  folderMidiFiles = Array.from(files).filter(f=>/\.(mid|midi)$/i.test(f.name));
+  folderMidiFiles.sort((a,b)=>{
+    const pa=(a.webkitRelativePath||a.name).toLowerCase();
+    const pb=(b.webkitRelativePath||b.name).toLowerCase();
+    return pa.localeCompare(pb);
+  });
+  const sel=document.getElementById("folderMidiList");
+  if(!sel) return;
+  sel.innerHTML="";
+  if(!folderMidiFiles.length){
+    sel.innerHTML="<option value=''>Tidak ada file MIDI di folder ini</option>";
+    folderStatusText("Folder terbaca, tapi tidak ada file .mid / .midi.");
+    return;
+  }
+  folderMidiFiles.forEach((f,i)=>{
+    const opt=document.createElement("option");
+    opt.value=i;
+    opt.textContent=(f.webkitRelativePath||f.name).replace(/^midi\//i,"").replace(/\.(mid|midi)$/i,"");
+    sel.appendChild(opt);
+  });
+  folderStatusText("Playlist folder MIDI terbaca: "+folderMidiFiles.length+" lagu. Pilih lagu lalu klik LOAD atau LOAD & PLAY.");
+}
+function loadFolderMidi(){
+  const sel=document.getElementById("folderMidiList");
+  const idx=parseInt(sel && sel.value,10);
+  const file=folderMidiFiles[idx];
+  if(!file){
+    folderStatusText("Pilih lagu MIDI dari daftar dulu.");
+    return false;
+  }
+  const dt=new DataTransfer();
+  dt.items.add(file);
+  document.getElementById("midiFile").files=dt.files;
+  currentTrackName=file.name.replace(/\.(mid|midi)$/i,"");
+  const saveName=document.getElementById("saveName");
+  if(saveName) saveName.value=currentTrackName;
+  updateOLED(currentTrackName,"READY",0,0);
+  folderStatusText("Loaded: "+currentTrackName+". Sekarang bisa klik PLAY MIDI NORMAL.");
+  return true;
+}
+function playFolderMidiNow(){
+  if(loadFolderMidi()) playMidi();
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  const inp=document.getElementById("midiFolderInput");
+  if(inp){
+    inp.addEventListener("change",()=>buildFolderMidiList(inp.files));
+  }
+});
+
+
+// ===== AUTO PLAYLIST NETLIFY DARI MIDI/MANIFEST.JSON =====
+let netlifyMidiLibrary = [];
+async function loadNetlifyMidiLibrary(){
+  const sel = document.getElementById("folderMidiList");
+  if(!sel) return;
+  try{
+    folderStatusText("Membaca playlist dari midi/manifest.json ...");
+    const res = await fetch("midi/manifest.json?t=" + Date.now(), {cache:"no-store"});
+    if(!res.ok) throw new Error("manifest.json tidak ditemukan");
+    const data = await res.json();
+    netlifyMidiLibrary = Array.isArray(data) ? data : [];
+    folderMidiFiles = [];
+    sel.innerHTML = "";
+    if(!netlifyMidiLibrary.length){
+      sel.innerHTML = "<option value=''>Playlist kosong</option>";
+      folderStatusText("manifest.json terbaca, tapi kosong.");
+      return;
+    }
+    netlifyMidiLibrary.forEach((item,i)=>{
+      const opt=document.createElement("option");
+      opt.value=i;
+      opt.textContent=item.name || item.file || ("Lagu "+(i+1));
+      sel.appendChild(opt);
+    });
+    folderStatusText("Playlist Netlify terbaca: "+netlifyMidiLibrary.length+" lagu.");
+  }catch(e){
+    sel.innerHTML = "<option value=''>Playlist tidak terbaca</option>";
+    folderStatusText("Gagal membaca playlist: "+e.message);
+  }
+}
+async function loadFolderMidi(){
+  const sel=document.getElementById("folderMidiList");
+  const idx=parseInt(sel && sel.value,10);
+  if(netlifyMidiLibrary && netlifyMidiLibrary[idx]){
+    const item = netlifyMidiLibrary[idx];
+    try{
+      folderStatusText("Mengambil MIDI: "+(item.name || item.file)+" ...");
+      const res = await fetch("midi/" + encodeURIComponent(item.file).replace(/%2F/g,"/"), {cache:"no-store"});
+      if(!res.ok) throw new Error("File MIDI tidak ditemukan: "+item.file);
+      const blob = await res.blob();
+      const file = new File([blob], item.file, {type:"audio/midi"});
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      document.getElementById("midiFile").files = dt.files;
+      currentTrackName = (item.name || item.file).replace(/\.(mid|midi)$/i,"");
+      const saveName=document.getElementById("saveName");
+      if(saveName) saveName.value=currentTrackName;
+      updateOLED(currentTrackName,"READY",0,0);
+      folderStatusText("Loaded: "+currentTrackName);
+      return true;
+    }catch(e){
+      folderStatusText("Gagal load MIDI: "+e.message);
+      return false;
+    }
+  }
+  const file=folderMidiFiles[idx];
+  if(!file){ folderStatusText("Pilih lagu MIDI dari daftar dulu."); return false; }
+  const dt=new DataTransfer();
+  dt.items.add(file);
+  document.getElementById("midiFile").files=dt.files;
+  currentTrackName=file.name.replace(/\.(mid|midi)$/i,"");
+  const saveName=document.getElementById("saveName");
+  if(saveName) saveName.value=currentTrackName;
+  updateOLED(currentTrackName,"READY",0,0);
+  folderStatusText("Loaded: "+currentTrackName);
+  return true;
+}
+function playFolderMidiNow(){
+  Promise.resolve(loadFolderMidi()).then(ok=>{ if(ok) playMidi(); });
+}
+window.addEventListener("load", ()=>setTimeout(loadNetlifyMidiLibrary, 700));
+
+</script>
+
+</body>
+</html>

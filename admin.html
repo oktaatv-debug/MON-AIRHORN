@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADMIN GENERATOR - MON AIRHORN</title>
+<style>
+*{box-sizing:border-box}body{font-family:Arial;background:#0d0d0d;color:white;margin:0;padding:18px}
+.card{max-width:900px;margin:auto;background:#171717;border:1px solid #333;border-radius:14px;padding:18px}
+input,button,textarea{width:100%;padding:12px;margin:7px 0;border-radius:9px;font-size:15px}
+input,textarea{background:#090909;color:white;border:1px solid #444}
+button{background:#f6b21a;border:none;font-weight:bold;cursor:pointer}
+.blue{background:#1e88e5;color:white}.gray{background:#333;color:white}
+textarea{height:320px;font-family:Consolas,monospace}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>ADMIN GENERATOR ACCESS.JSON</h2>
+<p>Gunakan ini untuk membuat kode pembeli. Hasilnya tinggal copy ke <b>access.json</b> di GitHub.</p>
+
+<div class="row">
+<div><label>Nomor User</label><input id="nomor" type="number" value="2"></div>
+<div><label>PIN</label><input id="pin" placeholder="Kosongkan untuk auto random"></div>
+</div>
+<div class="row">
+<div><label>Nama User</label><input id="nama" placeholder="User 0002"></div>
+<div><label>Expired</label><input id="expired" type="date"></div>
+</div>
+
+<button class="blue" onclick="buat()">BUAT KODE USER</button>
+<button class="gray" onclick="buatBanyak()">BUAT 10 KODE SEKALIGUS</button>
+<textarea id="hasil" placeholder="Hasil kode muncul di sini"></textarea>
+<button onclick="copy()">COPY HASIL</button>
+
+<h3>Cara edit di GitHub</h3>
+<p>GitHub → repository MON-AIRHORN → klik access.json → klik pensil ✏️ → paste kode baru → Commit Changes.</p>
+</div>
+
+<script>
+function pad(n){return String(n).padStart(4,"0")}
+function randPin(){return String(Math.floor(100000+Math.random()*900000))}
+function buatObj(n){
+  const pin = document.getElementById("pin").value.trim() || randPin();
+  const nama = document.getElementById("nama").value.trim() || ("User " + pad(n));
+  const expired = document.getElementById("expired").value || "2026-12-31";
+  return {
+    kode:"MON-"+pad(n),
+    data:{pin,active:true,expired,name:nama}
+  };
+}
+function buat(){
+  const n = Number(document.getElementById("nomor").value||1);
+  const o = buatObj(n);
+  document.getElementById("hasil").value = '"' + o.kode + '": ' + JSON.stringify(o.data, null, 2);
+}
+function buatBanyak(){
+  let n = Number(document.getElementById("nomor").value||1);
+  const arr=[];
+  for(let i=0;i<10;i++){
+    const expired = document.getElementById("expired").value || "2026-12-31";
+    const kode = "MON-" + pad(n+i);
+    const data = {pin:randPin(),active:true,expired,name:"User "+pad(n+i)};
+    arr.push('"' + kode + '": ' + JSON.stringify(data, null, 2));
+  }
+  document.getElementById("hasil").value = arr.join(",\n\n");
+}
+function copy(){navigator.clipboard.writeText(document.getElementById("hasil").value);alert("Sudah dicopy")}
+</script>
+</body>
+</html>
